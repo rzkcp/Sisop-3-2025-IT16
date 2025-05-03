@@ -84,7 +84,7 @@ void deliver_order(const char *nama, const char *agent_name) {
         }
     }
     pthread_mutex_unlock(&shared_data->mutex);
-    printf("Pesanan tidak ditemukan atau sudah dikirim.\n");
+    printf("Pesanan tidak ditemukan / sudah dikirim.\n");
 }
 
 void check_status(const char *nama) {
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
 
     if (argc == 1) {
         load_orders_from_csv("delivery_order.csv");
-        printf("Data pesanan berhasil dimuat ke shared memory.\n");
+        printf("Data pesanan berhasil disimpan ke shared memory.\n");
         return 0;
     }
 
