@@ -10,7 +10,6 @@
 #define MAX_HUNTERS 100
 #define MAX_DUNGEONS 50
 
-// Struktur data (sama seperti di atas)
 typedef struct {
     char key[50];
     char name[50];
@@ -107,13 +106,11 @@ void reset_hunter(HunterShared *hshm, char *key) {
 int main() {
     srand(time(NULL));
 
-    // Inisialisasi shared memory
     int shm_hunter_id = shmget(SHM_HUNTER_KEY, sizeof(HunterShared), IPC_CREAT | 0666);
     int shm_dungeon_id = shmget(SHM_DUNGEON_KEY, sizeof(DungeonShared), IPC_CREAT | 0666);
     HunterShared *hshm = (HunterShared *)shmat(shm_hunter_id, NULL, 0);
     DungeonShared *dshm = (DungeonShared *)shmat(shm_dungeon_id, NULL, 0);
 
-    // Inisialisasi counter
     hshm->hunter_count = 0;
     dshm->dungeon_count = 0;
 
@@ -157,7 +154,6 @@ int main() {
         }
     }
 
-    // Pembersihan shared memory
     shmdt(hshm);
     shmdt(dshm);
     shmctl(shm_hunter_id, IPC_RMID, NULL);

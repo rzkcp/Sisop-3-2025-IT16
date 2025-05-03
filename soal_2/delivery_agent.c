@@ -13,7 +13,7 @@
 typedef struct {
     char nama[50];
     char alamat[100];
-    char jenis[10];  // "Express" atau "Reguler"
+    char jenis[10];  
     char status[100];
 } Order;
 
@@ -50,10 +50,8 @@ void* agent_thread(void* arg) {
             if (strcmp(shared_data->orders[i].jenis, "Express") == 0 &&
                 strcmp(shared_data->orders[i].status, "Pending") == 0) {
                 
-                // Tandai sebagai delivered
                 snprintf(shared_data->orders[i].status, 100, "Delivered by %s", agent_name);
 
-                // Tulis log
                 log_delivery(agent_name,
                     shared_data->orders[i].nama,
                     shared_data->orders[i].alamat);
@@ -62,7 +60,7 @@ void* agent_thread(void* arg) {
         }
         pthread_mutex_unlock(&shared_data->mutex);
 
-        sleep(1); // delay supaya tidak loop terlalu cepat
+        sleep(1); 
     }
 
     return NULL;

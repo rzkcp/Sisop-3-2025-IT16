@@ -13,7 +13,7 @@
 typedef struct {
     char nama[50];
     char alamat[100];
-    char jenis[10]; // "Express" atau "Reguler"
+    char jenis[10];
     char status[100];
 } Order;
 
@@ -115,7 +115,6 @@ int main(int argc, char *argv[]) {
     pthread_mutex_init(&shared_data->mutex, &attr);
 
     if (argc == 1) {
-        // Load CSV hanya sekali saat pertama
         load_orders_from_csv("delivery_order.csv");
         printf("Data pesanan berhasil dimuat ke shared memory.\n");
         return 0;

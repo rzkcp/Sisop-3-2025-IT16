@@ -9,7 +9,6 @@
 #define MAX_HUNTERS 100
 #define MAX_DUNGEONS 50
 
-// Struktur data (sama seperti di atas)
 typedef struct {
     char key[50];
     char name[50];
