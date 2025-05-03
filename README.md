@@ -19,7 +19,7 @@ Ketentuan struktur file :
 2. ![1t](https://github.com/rzkcp/Sisop-3-2025-IT16/blob/f2917028734616e78cb559908578e617d08f8169/assets/ss_3_3.png)
    Terdapat handling bilamana kita me-run file atau program player.c maka dalam dungeon.c akan memberikan keterangan client/player terhubung.
 
-  #Program player.c#
+  ##Program player.c##
 3. ![1t](https://github.com/rzkcp/Sisop-3-2025-IT16/blob/f2917028734616e78cb559908578e617d08f8169/assets/ss_4_3.png)
   Dalam kode berikut player.c berperan sebagai client atau user, dan dalam program ini
   player tidak menyimpan data-data dari list berikut,melainkan hanya opsi switch case saja.
