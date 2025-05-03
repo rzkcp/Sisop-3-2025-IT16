@@ -11,7 +11,7 @@
 #define MAX_DUNGEONS 50
 
 typedef struct {
-    char key[50];
+    char password[50];
     char name[50];
     int level;
     int exp;
@@ -62,8 +62,8 @@ void show_hunters(HunterShared *hshm) {
     printf("Daftar Hunter:\n");
     for (int i = 0; i < hshm->hunter_count; i++) {
         Hunter *h = &hshm->hunters[i];
-        printf("Key: %s, Nama: %s, Level: %d, EXP: %d, ATK: %d, HP: %d, DEF: %d, Banned: %d\n",
-               h->key, h->name, h->level, h->exp, h->atk, h->hp, h->def, h->banned);
+        printf("Nama: %s, Level: %d, EXP: %d, ATK: %d, HP: %d, DEF: %d, Banned: %d\n",
+               h->name, h->level, h->exp, h->atk, h->hp, h->def, h->banned);
     }
 }
 
@@ -76,9 +76,9 @@ void show_dungeons(DungeonShared *dshm) {
     }
 }
 
-void ban_hunter(HunterShared *hshm, char *key, int ban) {
+void ban_hunter(HunterShared *hshm, char *name, int ban) {
     for (int i = 0; i < hshm->hunter_count; i++) {
-        if (strcmp(hshm->hunters[i].key, key) == 0) {
+        if (strcmp(hshm->hunters[i].name, name) == 0) {
             hshm->hunters[i].banned = ban;
             printf("Hunter %s %s!\n", hshm->hunters[i].name, ban ? "dibanned" : "diunbanned");
             return;
@@ -87,9 +87,9 @@ void ban_hunter(HunterShared *hshm, char *key, int ban) {
     printf("Hunter tidak ditemukan!\n");
 }
 
-void reset_hunter(HunterShared *hshm, char *key) {
+void reset_hunter(HunterShared *hshm, char *name) {
     for (int i = 0; i < hshm->hunter_count; i++) {
-        if (strcmp(hshm->hunters[i].key, key) == 0) {
+        if (strcmp(hshm->hunters[i].name, name) == 0) {
             Hunter *h = &hshm->hunters[i];
             h->level = 1;
             h->exp = 0;
@@ -131,24 +131,24 @@ int main() {
                 create_dungeon(dshm);
                 break;
             case 4: {
-                char key[50];
-                printf("Masukkan key hunter: ");
-                scanf("%s", key);
-                ban_hunter(hshm, key, 1);
+                char name[50];
+                printf("Masukkan nama hunter: ");
+                scanf("%s", name);
+                ban_hunter(hshm, name, 1);
                 break;
             }
             case 5: {
-                char key[50];
-                printf("Masukkan key hunter: ");
-                scanf("%s", key);
-                ban_hunter(hshm, key, 0);
+                char name[50];
+                printf("Masukkan nama hunter: ");
+                scanf("%s", name);
+                ban_hunter(hshm, name, 0);
                 break;
             }
             case 6: {
-                char key[50];
-                printf("Masukkan key hunter: ");
-                scanf("%s", key);
-                reset_hunter(hshm, key);
+                char name[50];
+                printf("Masukkan nama hunter: ");
+                scanf("%s", name);
+                reset_hunter(hshm, name);
                 break;
             }
         }

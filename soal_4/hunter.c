@@ -10,7 +10,7 @@
 #define MAX_DUNGEONS 50
 
 typedef struct {
-    char key[50];
+    char password[50];
     char name[50];
     int level;
     int exp;
@@ -40,24 +40,36 @@ typedef struct {
     int dungeon_count;
 } DungeonShared;
 
-int login(HunterShared *hshm, char *key, Hunter **hunter) {
+int login(HunterShared *hshm, char *name, char *password, Hunter **hunter) {
     for (int i = 0; i < hshm->hunter_count; i++) {
-        if (strcmp(hshm->hunters[i].key, key) == 0) {
-            *hunter = &hshm->hunters[i];
-            return 1;
+        if (strcmp(hshm->hunters[i].name, name) == 0) {
+            if (strcmp(hshm->hunters[i].password, password) == 0) {
+                *hunter = &hshm->hunters[i];
+                return 1;
+            } else {
+                printf("Password salah!\n");
+                return 0;
+            }
         }
     }
+    printf("Nama hunter tidak ditemukan!\n");
     return 0;
 }
 
-void register_hunter(HunterShared *hshm, char *key, char *name) {
+void register_hunter(HunterShared *hshm, char *name, char *password) {
     if (hshm->hunter_count >= MAX_HUNTERS) {
         printf("Kapasitas hunter penuh!\n");
         return;
     }
+    for (int i = 0; i < hshm->hunter_count; i++) {
+        if (strcmp(hshm->hunters[i].name, name) == 0) {
+            printf("Nama sudah digunakan, pilih nama lain!\n");
+            return;
+        }
+    }
     Hunter *h = &hshm->hunters[hshm->hunter_count];
-    strcpy(h->key, key);
     strcpy(h->name, name);
+    strcpy(h->password, password);
     h->level = 1;
     h->exp = 0;
     h->atk = 10;
@@ -113,13 +125,13 @@ void conquer_dungeon(Hunter *hunter, DungeonShared *dshm, char *dungeon_key) {
     printf("Dungeon tidak ditemukan!\n");
 }
 
-void battle_hunter(Hunter *hunter, HunterShared *hshm, char *opponent_key) {
+void battle_hunter(Hunter *hunter, HunterShared *hshm, char *opponent_name) {
     if (hunter->banned) {
         printf("Kamu dibanned dari battle!\n");
         return;
     }
     for (int i = 0; i < hshm->hunter_count; i++) {
-        if (strcmp(hshm->hunters[i].key, opponent_key) == 0) {
+        if (strcmp(hshm->hunters[i].name, opponent_name) == 0 && strcmp(hshm->hunters[i].name, hunter->name) != 0) {
             Hunter *opponent = &hshm->hunters[i];
             int my_stats = hunter->atk + hunter->hp + hunter->def;
             int opp_stats = opponent->atk + opponent->hp + opponent->def;
@@ -140,7 +152,7 @@ void battle_hunter(Hunter *hunter, HunterShared *hshm, char *opponent_key) {
                 printf("Kamu kalah! Stats diberikan ke lawan.\n");
                 // Hapus hunter
                 for (int j = 0; j < hshm->hunter_count; j++) {
-                    if (strcmp(hshm->hunters[j].key, hunter->key) == 0) {
+                    if (strcmp(hshm->hunters[j].name, hunter->name) == 0) {
                         for (int k = j; k < hshm->hunter_count - 1; k++) {
                             hshm->hunters[k] = hshm->hunters[k + 1];
                         }
@@ -153,15 +165,18 @@ void battle_hunter(Hunter *hunter, HunterShared *hshm, char *opponent_key) {
             return;
         }
     }
-    printf("Lawan tidak ditemukan!\n");
+    printf("Lawan tidak ditemukan atau kamu tidak bisa bertarung dengan diri sendiri!\n");
 }
 
 void dungeon_notification(DungeonShared *dshm, int level) {
-    while (1) {
+    int iterations = 5; // Display updates 5 times, then return to menu
+    for (int i = 0; i < iterations; i++) {
         system("clear");
+        printf("=== Dungeon Notifications (Update %d/%d) ===\n", i + 1, iterations);
         show_dungeons_for_level(dshm, level);
         sleep(3);
     }
+    printf("Notifications ended. Returning to menu...\n");
 }
 
 int main() {
@@ -179,23 +194,24 @@ int main() {
     printf("1. Login\n2. Register\nPilih: ");
     int choice;
     scanf("%d", &choice);
-    char key[50], name[50];
+    char password[50], name[50];
     if (choice == 1) {
-        printf("Masukkan key: ");
-        scanf("%s", key);
-        if (!login(hshm, key, &hunter)) {
-            printf("Key salah!\n");
+        printf("Masukkan nama: ");
+        scanf("%s", name);
+        printf("Masukkan password: ");
+        scanf("%s", password);
+        if (!login(hshm, name, password, &hunter)) {
             shmdt(hshm);
             shmdt(dshm);
             return 1;
         }
     } else if (choice == 2) {
-        printf("Masukkan key: ");
-        scanf("%s", key);
         printf("Masukkan nama: ");
         scanf("%s", name);
-        register_hunter(hshm, key, name);
-        login(hshm, key, &hunter);
+        printf("Masukkan password: ");
+        scanf("%s", password);
+        register_hunter(hshm, name, password);
+        login(hshm, name, password, &hunter);
     }
 
     while (1) {
@@ -215,10 +231,10 @@ int main() {
                 break;
             }
             case 3: {
-                char opponent_key[50];
-                printf("Masukkan key lawan: ");
-                scanf("%s", opponent_key);
-                battle_hunter(hunter, hshm, opponent_key);
+                char opponent_name[50];
+                printf("Masukkan nama lawan: ");
+                scanf("%s", opponent_name);
+                battle_hunter(hunter, hshm, opponent_name);
                 break;
             }
             case 4:
