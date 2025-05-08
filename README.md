@@ -23,11 +23,11 @@ Dalam soal ini intinya praktikan diminta untuk membuat sistem RPC server-client 
 ### Soal_2 ###
 Praktikan diminta untuk membuat delivery management system untuk RushGo menggunakan 2 program yang saling berinteraksi menggunakan shared memory dan saling terhubung untuk threading (Agent express) dan interaksi user (regular delivery).
 
-pertama kita compile terlebih dahulu 2 programnya, yaitu dispatcher (untuk regular delivery dan monitoring) dan delivery_agent (untuk express delivery)
+Pertama kita compile terlebih dahulu 2 programnya, yaitu dispatcher (untuk regular delivery dan monitoring) dan delivery_agent (untuk express delivery)
 
 ![Screenshot 2025-05-08 235205](https://github.com/user-attachments/assets/849eed6a-34ce-4f01-9a9e-fca030bb6a5a)
 
-lalu kita up data pesanan ke shared memory 
+lalu kita up data pesanan(file csv) ke shared memory 
 
 ![Screenshot 2025-05-08 235026](https://github.com/user-attachments/assets/df4b93b6-b8ef-451d-aaf1-f03fe959ccb7)
 
@@ -36,9 +36,15 @@ lalu kita up data pesanan ke shared memory
 
 ![Screenshot 2025-05-08 235333](https://github.com/user-attachments/assets/c2a2c117-d586-4f55-b3cb-63e647ed4c8b)
 
+Untuk melihat status pengiriman, bisa dilakukan dengan ./dispatcher -status <nama>
+
 ![Screenshot 2025-05-08 235647](https://github.com/user-attachments/assets/9948d417-24d5-4c14-b2b5-e5cc3b3c6677)
 
+Apabila belum dikirim, maka bisa menggunakan fitur regular delivery melalui user dengan command ./dispatcher -deliver <nama>
+
 ![Screenshot 2025-05-08 235425](https://github.com/user-attachments/assets/a2021da0-23e3-46b7-bf44-7867ccd70575)
+
+Semua aktivitas yang terjadi disimpan ke dalam log file seperti berikut
 
 ![Screenshot 2025-05-09 000030](https://github.com/user-attachments/assets/f050c2bd-51f9-446c-ab1b-7de79b507df4)
 
