@@ -1,4 +1,4 @@
-# LAPORAN PRAKTIKUM MODUL-3 #
+![Screenshot 2025-05-09 001449](https://github.com/user-attachments/assets/8c0d7b4c-92e2-4b47-afb1-4f39f2a192dc)# LAPORAN PRAKTIKUM MODUL-3 #
 ## Praktikum Sistem Operasi Kelompok IT16 ##
 
 | Nama | NRP       |
@@ -27,16 +27,19 @@ Pertama kita compile terlebih dahulu 2 programnya, yaitu dispatcher (untuk regul
 
 ![Screenshot 2025-05-08 235205](https://github.com/user-attachments/assets/849eed6a-34ce-4f01-9a9e-fca030bb6a5a)
 
-lalu kita up data pesanan(file csv) ke shared memory 
+lalu kita up data pesanan(file csv) ke shared memory.
 
 ![Screenshot 2025-05-08 235026](https://github.com/user-attachments/assets/df4b93b6-b8ef-451d-aaf1-f03fe959ccb7)
 
+Fungsi ./delivery_agent akan menjalankan program express delivery menggunakan thread agent(Agent A, Agent B, Agent C) secara otomatis.
 
 ![Screenshot 2025-05-08 235717](https://github.com/user-attachments/assets/d5f9f077-ed43-45fb-be80-98eee1e645b4)
 
+Untuk melihat daftar pesanan dan statusnya bisa menggunakan ./dispatcher -list   .
+
 ![Screenshot 2025-05-08 235333](https://github.com/user-attachments/assets/c2a2c117-d586-4f55-b3cb-63e647ed4c8b)
 
-Untuk melihat status pengiriman, bisa dilakukan dengan ./dispatcher -status <nama>
+Untuk melihat status pengiriman, bisa dilakukan dengan ./dispatcher -status <nama> 
 
 ![Screenshot 2025-05-08 235647](https://github.com/user-attachments/assets/9948d417-24d5-4c14-b2b5-e5cc3b3c6677)
 
@@ -88,5 +91,48 @@ Dalam soal ini intinya praktikan diminta untuk membuat kode program yang menggun
 
 
 ### Soal_4 ###
+
+Dalam soal ini praktikan diminta untuk membuat dua program yang bisa saling berinteraksi melalui shared memory, yaitu hunter dan system. Hunter memiliki sistem leveling, untuk meningkatkan levelnya dibutuhkan exp yang didapat dari battle dengan hunter ataupun menaklukan dungeon.
+
+
+Pertama kita compile dulu program hunter dan systemnya.
+
+![compile](https://github.com/user-attachments/assets/f42e6c93-96e3-4c6f-a50e-d32bd365295e)
+
+Di dalam menu hunter pertama, ada fitur untuk login dan register hunter.
+
+![menu hunter 1](https://github.com/user-attachments/assets/90e30e56-d980-4a08-949d-081ee5f58230)
+
+Setelah login, akan muncul menu hunter kedua, kita bisa menaklukan dungeon, battle sesama hunter, melihat hunter, dan notifikasi (daftar dungeon yang sesuai kondisi level)
+
+![Screenshot 2025-05-09 001736](https://github.com/user-attachments/assets/9b1d9533-51bf-446b-9b41-250e8d962bb6)
+
+![Screenshot 2025-05-09 002935](https://github.com/user-attachments/assets/aa57744c-5fa8-4069-9eb3-d1dbc9e9af8f)
+
+![Screenshot 2025-05-09 001833](https://github.com/user-attachments/assets/e4d25b26-8a9d-4e4b-b920-87912faa746d)
+
+Setelah exp mencapai 500 lebih, maka level akan bertambah
+![Screenshot 2025-05-09 001826](https://github.com/user-attachments/assets/9864dc9e-f19b-47b6-bb3a-4a123e7170c9)
+
+Pada menu system, kita bisa membuat dungeon, menampilkan huter dan dungeon, ban dan unban hunter, serta reset hunter
+
+![Screenshot 2025-05-09 002952](https://github.com/user-attachments/assets/c62b2dd0-8d74-4f24-8160-d305a40e7dd0)
+
+![Screenshot 2025-05-09 001449](https://github.com/user-attachments/assets/24035498-b39d-4d3b-a61c-6013f1386b52)
+
+![Screenshot 2025-05-09 001502](https://github.com/user-attachments/assets/87b39b94-5cf8-4ba7-9d52-33ce276b8e61)
+
+![Screenshot 2025-05-09 001608](https://github.com/user-attachments/assets/047e7236-5d5c-4e0d-b06c-769e31870ef8)
+
+apabila dibanned, maka hunter tidak bisa melakukan aktivitas seperti menaklukan dungeon dan battle 1v1.
+
+![Screenshot 2025-05-09 001629](https://github.com/user-attachments/assets/a784115a-83b4-4c14-af70-f539eb47bf13)
+
+Setelah diunbanned, maka akses hunter kembali seperti semula
+
+![Screenshot 2025-05-09 001649](https://github.com/user-attachments/assets/796efc54-b4da-4162-a29f-5c30325d72dc)
+
+
+
 
 
