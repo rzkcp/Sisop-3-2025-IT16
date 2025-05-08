@@ -20,7 +20,21 @@ Dalam soal ini intinya praktikan diminta untuk membuat sistem RPC server-client 
 ![UBUNTU 24 04 2  Running  - Oracle VirtualBox 08_05_2025 23_39_32](https://github.com/user-attachments/assets/d3b643f4-3adc-4eed-9045-de8fc2571290)
 - Kelima praktikan harus bisa mengirimkan text file dan menerima sebuah file jpeg yang dapat dilihat isinya melalui program tersebut.
 
+### Soal_2 ###
+Praktikan diminta untuk membuat delivery management system untuk RushGo menggunakan 2 program yang saling berinteraksi menggunakan shared memory dan saling terhubung untuk threading (Agent express) dan interaksi user (regular delivery).
 
+![Screenshot 2025-05-08 235205](https://github.com/user-attachments/assets/849eed6a-34ce-4f01-9a9e-fca030bb6a5a)
+
+
+![Screenshot 2025-05-08 235026](https://github.com/user-attachments/assets/df4b93b6-b8ef-451d-aaf1-f03fe959ccb7)
+
+![Screenshot 2025-05-08 235717](https://github.com/user-attachments/assets/d5f9f077-ed43-45fb-be80-98eee1e645b4)
+
+![Screenshot 2025-05-08 235333](https://github.com/user-attachments/assets/c2a2c117-d586-4f55-b3cb-63e647ed4c8b)
+
+
+
+![Screenshot 2025-05-08 235425](https://github.com/user-attachments/assets/a2021da0-23e3-46b7-bf44-7867ccd70575)
 
 ### Soal_3 ###
 Dalam soal ini intinya praktikan diminta untuk membuat kode program yang menggunakan konsep socket programming, dengan case problemnya yaitu membuat semacam permainan simple, di mana player dapat terhubung dengan kode program utama yang bertugas listing server ke dalam port, dan kode program inilah yang menjadi inti utamanya.
@@ -58,4 +72,9 @@ Dalam soal ini intinya praktikan diminta untuk membuat kode program yang menggun
 ### 12. ![1t](https://github.com/rzkcp/Sisop-3-2025-IT16/blob/f2917028734616e78cb559908578e617d08f8169/assets/ss_13_3.png)
     Konfirmasi keterangan jikalau player keluar dari permainan(keluar dari program player.c)
 ### 13. ![1t](https://github.com/rzkcp/Sisop-3-2025-IT16/blob/f2917028734616e78cb559908578e617d08f8169/assets/ss_14_3.png)
-    Kode program dari file shop.c berisikan list menu senjata yang tersedia, yang nantinya akan di-import ke dalam file dungeon.c
+    Kode program dari file shop.c berisikan list menu senjata yang tersedia, yang nantinya akan di-import ke dalam file dungeon.
+
+
+### Soal_4 ###
+
+
