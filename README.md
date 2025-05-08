@@ -13,14 +13,13 @@
 Dalam soal ini intinya praktikan diminta untuk membuat sistem RPC server-client untuk mengubah text file sehingga bisa dilihat dalam bentuk file jpeg. 
 - pertama terdapat text file rahasia pada LINK BERIKUT https://drive.google.com/file/d/15mnXpYUimVP1F5Df7qd_Ahbjor3o1cVw/view?usp=sharing , diperbolehkan untuk download/unzip secara manual.
 - kedua praktikan ditugaskan untuk membuat image_server.c disini saya menggunakan nano, dimana program yang dibuat harus berjalan secara daemon  
- di background dan terhubung dengan image_client.c melalui socket RPC.
-`` ./server/image_server &
-
-./client/image_client
-`` 
+  di background dan terhubung dengan image_client.c melalui socket RPC menggunakan "./server/image_server &" dan "./client/image_client"
 - Ketiga program image_client.c harus bisa terhubung dengan image_server.c dan bisa mengirimkan perintah seperti Decrypt text file yang dimasukkan dengan cara Reverse Text lalu Decode from Hex, Request download 
   dari database server sesuai filename yang dimasukkan, misalnya: 1744401282.jpeg. Dengan catatan Note: diperbolehkan copy/pindah file, gunakan RPC untuk mengirim data.
 - keempat Program image_client.c harus disajikan dalam bentuk menu kreatif yang memperbolehkan pengguna untuk memasukkan perintah berkali-kali.
+![UBUNTU 24 04 2  Running  - Oracle VirtualBox 08_05_2025 23_39_32](https://github.com/user-attachments/assets/d3b643f4-3adc-4eed-9045-de8fc2571290)
+- Kelima praktikan harus bisa mengirimkan text file dan menerima sebuah file jpeg yang dapat dilihat isinya melalui program tersebut.
+
 
 
 ### Soal_3 ###
