@@ -1,190 +1,195 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <time.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <arpa/inet.h>
+#include <time.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/stat.h>
+#include <syslog.h>
 
 #define PORT 8080
-#define MAX_BUFFER 4096
-#define MAX_PATH_LEN 512
+#define MAX_BUFFER 8192
 #define DATABASE_DIR "server/database/"
-#define LOG_FILE "server/server.log"
-
-void log_action(const char *source, const char *action, const char *info) {
-    time_t now = time(NULL);
-    struct tm *tm_info = localtime(&now);
-    char timestamp[20];
-    strftime(timestamp, 20, "%Y-%m-%d %H:%M:%S", tm_info);
-    
-    FILE *log = fopen(LOG_FILE, "a");
-    if (log) {
-        fprintf(log, "[%s][%s]: [%s] [%s]\n", source, timestamp, action, info);
-        fclose(log);
-    }
-}
 
 void daemonize() {
     pid_t pid = fork();
     if (pid < 0) exit(EXIT_FAILURE);
     if (pid > 0) exit(EXIT_SUCCESS);
-    
+    umask(0);
     setsid();
     chdir("/");
-    umask(0);
-    
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
+    open("/dev/null", O_RDONLY);
+    open("/dev/null", O_WRONLY);
+    open("/dev/null", O_WRONLY);
 }
 
-char* reverse_string(const char *str) {
-    size_t len = strlen(str);
-    char *reversed = malloc(len + 1);
-    for (size_t i = 0; i < len; i++) {
-        reversed[i] = str[len - 1 - i];
+void log_action(const char *source, const char *action, const char *info) {
+    mkdir("server", 0755);
+    FILE *log = fopen("server/server.log", "a");
+    if (log) {
+        time_t now = time(NULL);
+        struct tm *tm = localtime(&now);
+        fprintf(log, "[%s][%04d-%02d-%02d %02d:%02d:%02d]: [%s] [%s]\n",
+                source, tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+                tm->tm_hour, tm->tm_min, tm->tm_sec, action, info);
+        fflush(log);
+        fclose(log);
     }
-    reversed[len] = '\0';
-    return reversed;
 }
 
-unsigned char* hex_decode(const char *hex, size_t *out_len) {
-    size_t len = strlen(hex);
-    if (len % 2 != 0) return NULL;
-    *out_len = len / 2;
-    unsigned char *bin = malloc(*out_len);
-    
-    for (size_t i = 0; i < *out_len; i++) {
-        sscanf(hex + 2*i, "%2hhx", &bin[i]);
-    }
-    return bin;
-}
-
-void handle_client(int client_sock) {
-    char cmd;
-    
-    while (1) {
-        if (recv(client_sock, &cmd, 1, 0) <= 0) break;
-        
-        if (cmd == 'D') {
-            uint32_t data_len;
-            recv(client_sock, &data_len, 4, 0);
-            data_len = ntohl(data_len);
-            
-            char *text = malloc(data_len + 1);
-            ssize_t received = recv(client_sock, text, data_len, 0);
-            if (received != data_len) {
-                free(text);
-                continue;
-            }
-            text[data_len] = '\0';
-            
-            char *reversed = reverse_string(text);
-            size_t bin_len;
-            unsigned char *bin = hex_decode(reversed, &bin_len);
-            
-            if (bin) {
-                time_t timestamp = time(NULL);
-                char filename[MAX_PATH_LEN];
-                snprintf(filename, sizeof(filename), "%ld.jpeg", timestamp);
-                
-                char fullpath[MAX_PATH_LEN];
-                int path_len = snprintf(fullpath, sizeof(fullpath), "%s%s", DATABASE_DIR, filename);
-                
-                if (path_len > 0 && (size_t)path_len < sizeof(fullpath)) {
-                    FILE *file = fopen(fullpath, "wb");
-                    if (file) {
-                        fwrite(bin, 1, bin_len, file);
-                        fclose(file);
-                        send(client_sock, "S", 1, 0);
-                        log_action("Client", "DECRYPT", "Text data");
-                        log_action("Server", "SAVE", filename);
-                    }
-                }
-                free(bin);
-            }
-            free(reversed);
-            free(text);
-            
-        } else if (cmd == 'L') {
-            uint32_t name_len;
-            recv(client_sock, &name_len, 4, 0);
-            name_len = ntohl(name_len);
-            
-            if (name_len >= MAX_BUFFER) {
-                send(client_sock, "E", 1, 0);
-                log_action("Server", "ERROR", "Filename too long");
-                continue;
-            }
-            
-            char filename[MAX_BUFFER];
-            ssize_t received = recv(client_sock, filename, name_len, 0);
-            if (received != name_len) {
-                send(client_sock, "E", 1, 0);
-                continue;
-            }
-            filename[name_len] = '\0';
-            
-            char fullpath[MAX_PATH_LEN];
-            int path_len = snprintf(fullpath, sizeof(fullpath), "%s%s", DATABASE_DIR, filename);
-            
-            if (path_len < 0 || (size_t)path_len >= sizeof(fullpath)) {
-                send(client_sock, "E", 1, 0);
-                log_action("Server", "ERROR", "Path truncated");
-                continue;
-            }
-            
-            FILE *file = fopen(fullpath, "rb");
-            if (file) {
-                fseek(file, 0, SEEK_END);
-                long file_size = ftell(file);
-                fseek(file, 0, SEEK_SET);
-                
-                unsigned char *file_data = malloc(file_size);
-                fread(file_data, 1, file_size, file);
-                fclose(file);
-                
-                send(client_sock, "S", 1, 0);
-                uint32_t net_size = htonl(file_size);
-                send(client_sock, &net_size, 4, 0);
-                send(client_sock, file_data, file_size, 0);
-                
-                log_action("Client", "DOWNLOAD", filename);
-                log_action("Server", "UPLOAD", filename);
-                free(file_data);
-            } else {
-                send(client_sock, "E", 1, 0);
-            }
-        } else if (cmd == 'X') {
+void send_all(int sock, const void *buf, size_t len) {
+    size_t sent = 0;
+    while (sent < len) {
+        ssize_t n = send(sock, buf + sent, len - sent, 0);
+        if (n <= 0) {
+            log_action("Server", "ERROR", "Send failed");
             break;
         }
+        sent += n;
     }
-    close(client_sock);
+}
+
+void reverse_and_hex_decode(const char *data, int len, char *output_filename) {
+    char reversed[len + 1];
+    for (int i = 0; i < len; i++) reversed[i] = data[len - 1 - i];
+    reversed[len] = '\0';
+
+    mkdir("server", 0755);
+    mkdir("server/database", 0755);
+    FILE *out = fopen(output_filename, "wb");
+    if (out) {
+        for (int i = 0; i < len; i += 2) {
+            char hex[3] = {reversed[i], reversed[i + 1], '\0'};
+            unsigned char byte = (unsigned char)strtol(hex, NULL, 16);
+            fwrite(&byte, 1, 1, out);
+        }
+        fclose(out);
+        if (access(output_filename, F_OK) == 0) {
+            log_action("Server", "INFO", "File created successfully");
+        } else {
+            log_action("Server", "ERROR", "Failed to create file");
+        }
+    } else {
+        log_action("Server", "ERROR", "Failed to open file for writing");
+    }
 }
 
 int main() {
     daemonize();
-    mkdir(DATABASE_DIR, 0777);
-    
-    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    int server_fd, new_socket;
     struct sockaddr_in address;
+    int addrlen = sizeof(address);
+    char buffer[MAX_BUFFER] = {0};
+
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        log_action("Server", "ERROR", "Gagal membuat socket");
+        return -1;
+    }
+
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
-    
-    bind(server_fd, (struct sockaddr*)&address, sizeof(address));
-    listen(server_fd, 5);
-    
-    while (1) {
-        int client_sock = accept(server_fd, NULL, NULL);
-        if (client_sock < 0) continue;
-        handle_client(client_sock);
+
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+        log_action("Server", "ERROR", "Gagal bind socket");
+        return -1;
     }
-    
+
+    if (listen(server_fd, 10) < 0) {
+        log_action("Server", "ERROR", "Gagal listen");
+        return -1;
+    }
+
+    while (1) {
+        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
+            log_action("Server", "ERROR", "Gagal accept connection");
+            continue;
+        }
+
+        while (1) {
+            int valread = read(new_socket, buffer, MAX_BUFFER);
+            if (valread <= 0) {
+                log_action("Server", "INFO", "Client disconnected");
+                break;
+            }
+
+            buffer[valread] = '\0';
+            char *command = strtok(buffer, "|");
+            char *data = strtok(NULL, "");
+
+            if (command && strcmp(command, "DECRYPT") == 0 && data) {
+                char log_msg[MAX_BUFFER];
+                snprintf(log_msg, sizeof(log_msg), "Text data");
+                log_action("Client", "DECRYPT", log_msg);
+
+                char timestamp[20];
+                snprintf(timestamp, sizeof(timestamp), "%ld.jpeg", time(NULL));
+                char output_path[100];
+                snprintf(output_path, sizeof(output_path), "%s%s", DATABASE_DIR, timestamp);
+
+                reverse_and_hex_decode(data, strlen(data), output_path);
+                log_action("Server", "SAVE", timestamp);
+                char response[100];
+                snprintf(response, sizeof(response), "Text decrypted and saved as %s", timestamp);
+                send_all(new_socket, response, strlen(response));
+            } else if (command && strcmp(command, "DOWNLOAD") == 0 && data) {
+                char log_msg[MAX_BUFFER];
+                snprintf(log_msg, sizeof(log_msg), "%s", data);
+                log_action("Client", "DOWNLOAD", log_msg);
+
+                char fullpath[100];
+                snprintf(fullpath, sizeof(fullpath), "%s%s", DATABASE_DIR, data);
+                FILE *file = fopen(fullpath, "rb");
+                if (file) {
+                    log_action("Server", "INFO", "File opened successfully");
+                    fseek(file, 0, SEEK_END);
+                    long size = ftell(file);
+                    fseek(file, 0, SEEK_SET);
+
+                    // Kirim status SUCCESS dan ukuran file
+                    char status[10] = "SUCCESS|";
+                    send_all(new_socket, status, strlen(status));
+                    char size_str[32];
+                    snprintf(size_str, sizeof(size_str), "%ld|", size);
+                    send_all(new_socket, size_str, strlen(size_str));
+
+                    // Kirim file secara bertahap
+                    char chunk[MAX_BUFFER];
+                    size_t bytes_left = size;
+                    while (bytes_left > 0) {
+                        size_t to_read = bytes_left > MAX_BUFFER ? MAX_BUFFER : bytes_left;
+                        size_t bytes_read = fread(chunk, 1, to_read, file);
+                        if (bytes_read <= 0) {
+                            log_action("Server", "ERROR", "Failed to read file chunk");
+                            break;
+                        }
+                        send_all(new_socket, chunk, bytes_read);
+                        bytes_left -= bytes_read;
+                    }
+                    log_action("Server", "UPLOAD", data);
+                    fclose(file);
+                } else {
+                    log_action("Server", "ERROR", "Gagal menemukan file untuk dikirim");
+                    char error_msg[] = "ERROR|Gagal menemukan file untuk dikirim|";
+                    send_all(new_socket, error_msg, strlen(error_msg));
+                }
+            } else if (command && strcmp(command, "EXIT") == 0) {
+                log_action("Client", "EXIT", "Client requested to exit");
+                break;
+            } else {
+                log_action("Server", "ERROR", "Invalid command received");
+                send_all(new_socket, "ERROR|Invalid command|", 22);
+            }
+        }
+        close(new_socket);
+    }
+    close(server_fd);
     return 0;
 }
